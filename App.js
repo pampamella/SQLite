@@ -56,6 +56,57 @@ export default App = () => {
     setTelefone('');
   };
 
+  atualizarUsuario = () => {
+    db.transaction(
+      (tx) => {
+        tx.executeSql('UPDATE pessoa SET telefone=? WHERE nome=?',
+          [telefone, nome], (resultSet) => {
+            Alert.alert("Alerta", "Registro atualizado com sucesso");
+          }, (error) => {
+            console.log(error);
+          }
+        )
+      }
+    );
+    setTelefone('');
+  };
+
+  deletarUsuario = () => {
+    db.transaction(
+      (tx) => {
+        tx.executeSql('DELETE FROM pessoa WHERE nome=?',
+          [nome], (resultSet) => {
+            Alert.alert("Alerta", "Registro deletado com sucesso");
+          }, (error) => {
+            console.log(error);
+          }
+        )
+      }
+    );
+  };
+
+
+  listarUsuarioPorNome = async () => {
+    db.transaction((tx) => {
+      tx.executeSql(
+        'SELECT * FROM pessoa WHERE nome = ?',
+        [nome],
+        (tx, results) => {
+          var temp = [];
+          for (let i = 0; i < results.rows.length; ++i) {
+            temp.push(results.rows.item(i));
+            setItems(temp);
+            if (results.rows.length >= 1) {
+              setEmpty(false);
+            } else {
+              setEmpty(true)
+            }
+          }
+        }
+      );
+    });
+  }
+
   separadorItem = () => {
     return (
       <View
@@ -108,6 +159,9 @@ export default App = () => {
           <Button title="Salvar Usuário" onPress={() => salvarUsuario()} />
           <Button title="Apagar Tabela" onPress={() => apagarTabela()} />
           <Button title="Listar Usuários" onPress={() => listarUsuarios()} />
+          <Button title="Listar Usuário por Nome" onPress={() => listarUsuarioPorNome()} />
+          <Button title="Atualizar telefone" onPress={() => atualizarUsuario()} />
+          <Button title="Deletar Usuário" onPress={() => deletarUsuario()} />
         </View>
         <View style={styles.container}>
           {empty ? mensagemVazia(empty) :
